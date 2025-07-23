@@ -15,6 +15,7 @@ const profileSchema = new mongoose.Schema(
     skills: [{ type: String }],
     education: String,
     location: String,
+    experience: String,
 
     resumeUrl: String, // S3/Cloudinary
     resumeOriginalName: String,
@@ -24,4 +25,5 @@ const profileSchema = new mongoose.Schema(
   }
 );
 
-export const Profile = mongoose.model('Profile', profileSchema);
+const Profile = mongoose.model('Profile', profileSchema);
+export default Profile;
