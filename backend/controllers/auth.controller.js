@@ -6,7 +6,7 @@ export const register = async (req, res) => {
   try {
     const { name, email, password, role, phoneNumber } = req.body;
 
-    if (!name || !email || !password || !role || !phoneNumber) {
+    if (!name || !email || !password || !phoneNumber) {
       return res.status(400).json({
         message: 'All fields are required',
         success: false,
@@ -89,7 +89,7 @@ export const login = async (req, res) => {
     user = {
       _id: user._id,
       name: user.name,
-      email: user.name,
+      email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.role,
     };
@@ -102,7 +102,7 @@ export const login = async (req, res) => {
         sameSite: 'strict',
       })
       .json({
-        message: `Welcome back ${user.name.split(' ')[0]}`,
+        message: `Welcome back ${user.name}`,
         success: true,
         user,
       });

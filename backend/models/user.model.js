@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ['JOB_SEEKER', 'EMPLOYER', 'ADMIN'],
+      default: 'JOB_SEEKER',
     },
 
     phoneNumber: {
