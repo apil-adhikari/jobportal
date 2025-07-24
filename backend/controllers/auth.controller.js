@@ -13,7 +13,7 @@ export const register = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({
         message: 'User already exists with that email address',
@@ -32,9 +32,17 @@ export const register = async (req, res) => {
       phoneNumber,
     });
 
+    user = {
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      phoneNumber: newUser.phoneNumber,
+      id: newUser._id,
+    };
+
     res.status(201).json({
       message: 'User registered successfully',
-      newUser,
+      user,
       success: true,
     });
   } catch (error) {
