@@ -21,6 +21,13 @@ export const update = async (req, res) => {
     const file = req.file;
     // Cloudinary Setup Here
 
+    if (req.body.role) {
+      return res.status(401).json({
+        message: 'You cannot update your role',
+        success: false,
+      });
+    }
+
     // 1. Update user's basic info
     const updatedUser = await User.findByIdAndUpdate(
       userId,
