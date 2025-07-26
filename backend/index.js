@@ -11,6 +11,7 @@ dotenv.config({
 
 import authRouter from './routes/auth.route.js';
 import userRouter from './routes/user.route.js';
+import companyRouter from './routes/company.route.js';
 
 const app = express();
 
@@ -41,6 +42,7 @@ connectDB();
 // APIs
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/company', companyRouter);
 
 app.listen(PORT, () => {
   console.log(`Server started successfully on port ${PORT}`);

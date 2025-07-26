@@ -41,3 +41,35 @@ export const isAuthenticated = async (req, res, next) => {
     console.log(error);
   }
 };
+
+// INSTEAD OF THIS, WE CAN USE A SEPRATE ROLE CHECKING MIDDLEWARE
+
+// export const isEmployer = async (req, res, next) => {
+//   try {
+//     if (req.user.role !== 'EMPLOYER') {
+//       return res.status(403).json({
+//         message: 'Only employers can access this route',
+//         success: false,
+//       });
+//     }
+//     next();
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+export const restrictTo =
+  (...roles) =>
+  async (req, res, next) => {
+    console.log(req.user.role, 'RESTRICTING...');
+    // all roles : enum: ['JOB_SEEKER', 'EMPLOYER', 'ADMIN'],
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        message:
+          'You do not have permission to perform this action. YOU DO NOT HAVE RIGHT ROLE',
+        success: false,
+      });
+    }
+
+    next();
+  };
