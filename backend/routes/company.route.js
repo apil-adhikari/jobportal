@@ -11,6 +11,15 @@ import {
 
 const router = express.Router();
 
+/**
+ * CRUD
+ * Create a Company: A authenticated & user with role = "EMPLOYER" should be able to create a company
+ * Read: Should be a public route (get a company and get all companies)
+ * Get my companies: get the companies created by the user
+ * Update the company details: the user who created the company should be able to update the company details
+ * Delte company detail: the user who created the company should be able to delete the company
+ */
+
 router.post('/', isAuthenticated, restrictTo('EMPLOYER'), createCompany); // Create Company
 router.get('/my', isAuthenticated, restrictTo('EMPLOYER'), getMyCompany); // Get my Company
 

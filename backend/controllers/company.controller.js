@@ -3,6 +3,10 @@ import Company from '../models/company.model.js';
 
 // role = "EMPLOYER" can create a company
 
+/**Create a Company
+ * - user should be logged in to create a company
+ * - user with role "EMPLOYER" can create a company
+ */
 export const createCompany = async (req, res) => {
   try {
     const { name, description, website, logoUrl, industry, location } =
@@ -57,7 +61,10 @@ export const createCompany = async (req, res) => {
   }
 };
 
-// Get My Company (for logged in company owner)
+/** Get My Company (for logged in company owner)
+ * - Gets the companies created by the logged in user
+ */
+
 export const getMyCompany = async (req, res) => {
   try {
     console.log('GETTING MY COMPANY...');
@@ -113,7 +120,11 @@ export const getCompany = async (req, res) => {
   }
 };
 
-// UPDATE COMPANY (only by owner)
+/** UPDATE COMPANY (only by owner)
+ * - user should be logged in
+ * - the user should be the owner of the company
+ */
+
 export const updateCompany = async (req, res) => {
   try {
     // User should be logged in
@@ -121,6 +132,7 @@ export const updateCompany = async (req, res) => {
     const userId = req.user._id;
     let companyName = req.params.slug;
 
+    // 1) Find the company to update
     const company = await Company.findOne({ slug: companyName }).populate(
       'user',
       '-password'
@@ -133,15 +145,21 @@ export const updateCompany = async (req, res) => {
       });
     }
 
+    // 2) If the company exists, check if the LOGGEDIN User is the owner of the company
     if (!company.user.equals(userId)) {
+      // .equal() method can compare the string and the integer value
       return res.status(403).json({
         message: 'You are not the owner of this company',
+        success: false,
       });
     }
+
+    // If logged in user is the owner of the company, the get the data from req.body
 
     const { name, description, website, logoUrl, industry, location } =
       req.body;
 
+    // 4) Update Slug: If name is updated(name is in req.body), recreate the slug
     if (name) {
       company.name = name;
       company.slug = slugify(name, {
@@ -149,6 +167,8 @@ export const updateCompany = async (req, res) => {
         strict: true,
       });
     }
+
+    // Update other details
 
     company.description = description || company.description;
     company.website = website || company.website;
@@ -178,6 +198,7 @@ export const deleteCompany = async (req, res) => {
     const userId = req.user._id;
     let companyName = req.params.slug;
 
+    // 1) Find the company
     const company = await Company.findOne({
       slug: companyName,
     });
@@ -188,7 +209,7 @@ export const deleteCompany = async (req, res) => {
         .json({ message: 'Company not found', success: false });
     }
 
-    // Check for the ownership
+    // 2) Check for the ownership
     if (!company.user.equals(userId)) {
       return res.status(403).json({
         message: 'You are not the owner of this company',
@@ -196,6 +217,7 @@ export const deleteCompany = async (req, res) => {
       });
     }
 
+    // No data is sent in DELETE operation
     await Company.findOneAndDelete({ slug: companyName });
 
     res
@@ -213,14 +235,17 @@ export const deleteCompany = async (req, res) => {
 // Get all companies
 export const getAllCompanies = async (req, res) => {
   try {
-    const comapanies = await Company.find().populate('user', '-password');
+    const comapanies = await Company.find(
+      {},
+      { __v: 0, createdAt: 0, updatedAt: 0 } // PROJECTION on company detail
+    ).populate('user', '-password -__v -updatedAt -createdAt -_id'); // populating the fields inside the field
     res.status(200).json({
       result: `${comapanies.length} companies found`,
       success: true,
       comapanies,
     });
   } catch (error) {
-    console.log('Error getting companies');
+    console.log('Error getting companies', error);
     res.status(500).json({
       message: 'Internal Server Error',
       success: false,
