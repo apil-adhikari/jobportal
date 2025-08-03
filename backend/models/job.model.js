@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import slugify from 'slugify';
 
 const jobSchema = new mongoose.Schema(
   {
@@ -20,22 +21,37 @@ const jobSchema = new mongoose.Schema(
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
+      required: true,
     },
 
     postedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
     },
 
     position: {
       type: Number,
       required: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+jobSchema.pre('save', function (next) {
+  if (this.isModified('title')) {
+    this.slug = slugify(this.title, {
+      lower: true,
+      strict: true,
+    });
+  }
+});
 
 const Job = mongoose.model('Job', jobSchema);
 export default Job;

@@ -162,6 +162,9 @@ export const updateCompany = async (req, res) => {
     // 4) Update Slug: If name is updated(name is in req.body), recreate the slug
     if (name) {
       company.name = name;
+
+      // TODO: One the name is changed, it is needed to be reflected in the job section too.
+
       company.slug = slugify(name, {
         lower: true,
         strict: true,
