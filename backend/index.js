@@ -1,13 +1,8 @@
 import express, { urlencoded } from 'express';
-import dotenv from 'dotenv';
+import './config/dotenv.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import connectDB from './utils/db.js';
-dotenv.config({
-  override: true,
-  debug: true,
-  path: '.env',
-});
+import connectDB from './config/db.js';
 
 import authRouter from './routes/auth.route.js';
 import userRouter from './routes/user.route.js';

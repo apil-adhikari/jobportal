@@ -1,5 +1,6 @@
 import slugify from 'slugify';
 import Job from '../models/job.model.js';
+import ApiError from '../utils/ApiError.js';
 
 /**
  * REQUIREMENTS:
