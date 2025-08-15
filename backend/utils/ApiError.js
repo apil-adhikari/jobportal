@@ -20,7 +20,9 @@
 
 export default class ApiError extends Error {
   // Inherit ApiError from Error class
+
   constructor(message, statusCode) {
+    console.log('In ApiError Class Constructor');
     super(message);
 
     this.statusCode = statusCode;

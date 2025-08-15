@@ -7,7 +7,9 @@ import connectDB from './config/db.js';
 import authRouter from './routes/auth.route.js';
 import userRouter from './routes/user.route.js';
 import companyRouter from './routes/company.route.js';
-import jobRouter from './routes/job.route.js';
+import publicJobsRouter from './routes/jobs/publicJobs.route.js';
+import employerJobsRouter from './routes/jobs/employerJobs.route.js';
+import { globalErrorHanlder } from './middlewares/error.middleware.js';
 
 const app = express();
 
@@ -39,8 +41,10 @@ connectDB();
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/company', companyRouter);
-app.use('/api/v1/jobs', jobRouter);
+app.use('/api/v1/jobs', publicJobsRouter);
+app.use('/api/v1/jobs/employer', employerJobsRouter);
 
+app.use(globalErrorHanlder);
 app.listen(PORT, () => {
   console.log(`Server started successfully on port ${PORT}`);
 });

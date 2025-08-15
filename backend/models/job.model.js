@@ -6,6 +6,15 @@ const jobSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+
+      //  Do not allow the number in job title
+      validate: {
+        validator: function (value) {
+          // This regex checks if the string contains any digit (0-9)
+          return !/\d/.test(value);
+        },
+        message: (props) => `${props.value} should not contain any number`,
+      },
     },
     description: String,
     location: String,
@@ -43,15 +52,6 @@ const jobSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-jobSchema.pre('save', function (next) {
-  if (this.isModified('title')) {
-    this.slug = slugify(this.title, {
-      lower: true,
-      strict: true,
-    });
-  }
-});
 
 const Job = mongoose.model('Job', jobSchema);
 export default Job;

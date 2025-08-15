@@ -88,6 +88,6 @@ const getUser = async (req, res, next) => {
         */
 
 export const catchAsyncError = (fn) => (req, res, next) => {
-  fn(req, res, next).catch(next);
-  //    fn(req, res, next).catch((err) => next(err));
+  //   fn(req, res, next).catch(next);
+  fn(req, res, next).catch((err) => next(err));
 };
