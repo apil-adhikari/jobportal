@@ -16,6 +16,9 @@ export const JobRepository = {
     return data;
   },
 
+  // DELETE
+  delete: async (slug) => await Job.deleteOne({ slug }),
+
   // Check Job Ownership
   // isJobOwnedByUser: async (jobSlug, userId) => a,
 

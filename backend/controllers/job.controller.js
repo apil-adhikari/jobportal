@@ -110,41 +110,49 @@ export const updateJob = catchAsyncError(async (req, res) => {
 // TODO: (Marking job vacency as fulfilled, can be done in application controller)
 
 // Delete [NOT RECOMMENDED]
-export const deleteJob = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const jobSlug = req.params.slug;
+export const deleteJob = catchAsyncError(async (req, res) => {
+  // try {
+  const userId = req.user._id;
+  const jobSlug = req.params.slug;
+  console.log(jobSlug);
 
-    const job = await Job.findOne({ slug: jobSlug });
-    if (!job) {
-      return res.status(404).json({
-        message: 'Job not found',
-        success: false,
-      });
-    }
+  const job = await jobService.deleteJob(jobSlug, userId);
 
-    if (!job.postedBy.equals(userId)) {
-      return res.status(403).json({
-        message:
-          'You do not have permission to perform this action. YOU ARE NOT THE OWNER OF THIS POST',
-        success: false,
-      });
-    }
+  res.status(204).json({
+    message: 'Job deleted successfully',
+    job,
+  });
 
-    await Job.deleteOne({ slug: jobSlug });
+  // const job = await Job.findOne({ slug: jobSlug });
+  // if (!job) {
+  //   return res.status(404).json({
+  //     message: 'Job not found',
+  //     success: false,
+  //   });
+  // }
 
-    res.status(204).json({
-      message: 'Job deleted successfully',
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error deleting job', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
+  // if (!job.postedBy.equals(userId)) {
+  //   return res.status(403).json({
+  //     message:
+  //       'You do not have permission to perform this action. YOU ARE NOT THE OWNER OF THIS POST',
+  //     success: false,
+  //   });
+  // }
+
+  // await Job.deleteOne({ slug: jobSlug });
+
+  // res.status(204).json({
+  //   message: 'Job deleted successfully',
+  //   success: true,
+  // });
+  // } catch (error) {
+  //   console.log('Error deleting job', error);
+  //   res.status(500).json({
+  //     message: 'Internal Server Error',
+  //     success: false,
+  //   });
+  // }
+});
 
 // Get job created by logged in user
 export const getJobsCreatedByEmployeer = async (req, res) => {

@@ -90,7 +90,7 @@ export const jobService = {
     let baseSlug;
     let uniqueSlug;
 
-    // Check if the title is modified. Generate the slug only if modified
+    // SLUG GENERATION: Check if the title is modified. Generate the slug only if modified
     console.log(existingJob.title === title);
     if (existingJob.title !== title) {
       baseSlug = generateBaseSlug(title);
@@ -112,5 +112,27 @@ export const jobService = {
       position,
       slug: uniqueSlug ? uniqueSlug : slug,
     });
+  },
+
+  // DELETE JOB
+  deleteJob: async (slug, userId) => {
+    console.log(typeof slug);
+    // find if the job exists: getOneJob
+    const existingJob = await JobRepository.getOne(slug);
+    console.log(existingJob);
+    // check if the job is posted by the logged in user: can be checked if the job is found
+    if (!existingJob) {
+      throw new ApiError('No job found.', 404);
+    }
+
+    if (!existingJob.postedBy.equals(userId)) {
+      throw new ApiError(
+        'You are not authorized to delte this post. You are not the owner of this JOB Post.',
+        403
+      );
+    }
+
+    // delete the job
+    return await JobRepository.delete(slug);
   },
 };
