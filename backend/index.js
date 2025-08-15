@@ -8,6 +8,7 @@ import authRouter from './routes/auth.route.js';
 import userRouter from './routes/user.route.js';
 import companyRouter from './routes/company.route.js';
 import jobRouter from './routes/job.route.js';
+import { globalErrorHanlder } from './middlewares/error.middleware.js';
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/company', companyRouter);
 app.use('/api/v1/jobs', jobRouter);
 
+app.use(globalErrorHanlder);
 app.listen(PORT, () => {
   console.log(`Server started successfully on port ${PORT}`);
 });

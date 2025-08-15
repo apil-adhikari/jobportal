@@ -44,14 +44,14 @@ const jobSchema = new mongoose.Schema(
   }
 );
 
-jobSchema.pre('save', function (next) {
-  if (this.isModified('title')) {
-    this.slug = slugify(this.title, {
-      lower: true,
-      strict: true,
-    });
-  }
-});
+// jobSchema.pre('save', function (next) {
+//   if (this.isModified('title')) {
+//     this.slug = slugify(this.title, {
+//       lower: true,
+//       strict: true,
+//     });
+//   }
+// });
 
 const Job = mongoose.model('Job', jobSchema);
 export default Job;
