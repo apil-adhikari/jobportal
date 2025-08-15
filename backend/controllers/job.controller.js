@@ -28,7 +28,7 @@ export const createJob = catchAsyncError(async (req, res, next) => {
 });
 
 // Update Job
-export const updateJob = catchAsyncError(async (req, res) => {
+export const updateJob = catchAsyncError(async (req, res, next) => {
   // Loggedin user
   const userId = req.user._id;
   const jobSlug = req.params.slug;
@@ -155,31 +155,40 @@ export const deleteJob = catchAsyncError(async (req, res) => {
 });
 
 // Get job created by logged in user
-export const getJobsCreatedByEmployeer = async (req, res) => {
-  try {
-    const userId = req.user._id; // EMPLOYER id(logged in user)
+export const getJobsCreatedByEmployer = catchAsyncError(
+  async (req, res, next) => {
+    const userId = req.user._id; // Loggedin user
 
-    const jobs = await Job.find({ postedBy: userId });
-    if (!jobs) {
-      return res.status(404).json({
-        message: 'You have not posted any jobs yet.',
-        success: false,
-      });
-    }
+    const jobs = await jobService.getJobsCreatedByMe(userId);
 
     res.status(200).json({
-      result: `${jobs.length} jobs found.`,
+      result: `Total ${jobs.length} jobs found.`,
       jobs,
-      success: true,
     });
-  } catch (error) {
-    console.log('Error getting jobs created by employer(you)', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
+
+    // try {
+    //   const userId = req.user._id; // EMPLOYER id(logged in user)
+    //   const jobs = await Job.find({ postedBy: userId });
+    //   if (!jobs) {
+    //     return res.status(404).json({
+    //       message: 'You have not posted any jobs yet.',
+    //       success: false,
+    //     });
+    //   }
+    //   res.status(200).json({
+    //     result: `${jobs.length} jobs found.`,
+    //     jobs,
+    //     success: true,
+    //   });
+    // } catch (error) {
+    //   console.log('Error getting jobs created by employer(you)', error);
+    //   res.status(500).json({
+    //     message: 'Internal Server Error',
+    //     success: false,
+    //   });
+    // }
   }
-};
+);
 
 // PUBLIC ACCESS ---
 // Get Job

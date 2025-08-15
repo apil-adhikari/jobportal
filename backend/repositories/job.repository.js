@@ -19,6 +19,8 @@ export const JobRepository = {
   // DELETE
   delete: async (slug) => await Job.deleteOne({ slug }),
 
+  findJobsByUserId: async (userId) => await Job.find({ postedBy: userId }),
+
   // Check Job Ownership
   // isJobOwnedByUser: async (jobSlug, userId) => a,
 

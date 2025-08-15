@@ -135,4 +135,18 @@ export const jobService = {
     // delete the job
     return await JobRepository.delete(slug);
   },
+
+  // JOB CREATED BY LOGGED IN USER
+  getJobsCreatedByMe: async (userId) => {
+    const jobs = await JobRepository.findJobsByUserId(userId);
+
+    if (!jobs) {
+      throw new ApiError(
+        'You have not posted any Jobs yet. Please post some jobs to view them here.',
+        404
+      );
+    }
+
+    return jobs;
+  },
 };
