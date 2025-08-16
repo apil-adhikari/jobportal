@@ -1,13 +1,9 @@
-// JOB SERVICE
-
-import slugify from 'slugify';
 import { JobRepository } from '../repositories/job.repository.js';
 import ApiError from '../utils/ApiError.js';
 import {
   findUniqueSlug,
   generateBaseSlug,
 } from '../utils/uniqueSlugGeneration.js';
-import Job from '../models/job.model.js';
 
 export const jobService = {
   // userId & jobData are required
