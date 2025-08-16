@@ -56,7 +56,7 @@ export const jobService = {
   updateJob: async (slug, userId, jobData) => {
     console.log(slug);
     // Find the job
-    const existingJob = await JobRepository.getOne(slug);
+    const existingJob = await JobRepository.findJobBySlug(slug);
     console.log('JOB FOUND:', existingJob);
 
     // if job doesnot exists
@@ -118,7 +118,7 @@ export const jobService = {
   deleteJob: async (slug, userId) => {
     console.log(typeof slug);
     // find if the job exists: getOneJob
-    const existingJob = await JobRepository.getOne(slug);
+    const existingJob = await JobRepository.findJobBySlug(slug);
     console.log(existingJob);
     // check if the job is posted by the logged in user: can be checked if the job is found
     if (!existingJob) {
@@ -148,5 +148,18 @@ export const jobService = {
     }
 
     return jobs;
+  },
+
+  // GET JOB BY slug(can also be done using ID)
+  getJobBySlug: async (jobSlug) => {
+    console.log('finding job');
+    const job = await JobRepository.findJobBySlug(jobSlug);
+    console.log(job);
+
+    if (!job) {
+      throw new ApiError('No job found with that slug.', 404);
+    }
+
+    return job;
   },
 };

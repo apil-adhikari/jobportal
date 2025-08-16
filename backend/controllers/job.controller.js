@@ -192,34 +192,41 @@ export const getJobsCreatedByEmployer = catchAsyncError(
 
 // PUBLIC ACCESS ---
 // Get Job
-export const getJob = async (req, res) => {
-  try {
-    // get unique job (either by slug or using id)
-    const jobSlug = req.params.slug;
-    const job = await Job.findOne({
-      slug: jobSlug,
-    });
+export const getJob = catchAsyncError(async (req, res, next) => {
+  const jobSlug = req.params.slug;
 
-    if (!job) {
-      return res.status(400).json({
-        message: 'Job not found',
-        success: false,
-      });
-    }
+  const job = await jobService.getJobBySlug(jobSlug);
 
-    // if job found, send the job in the response
-    res.status(200).json({
-      job,
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error getting job', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
+  res.status(200).json({
+    message: 'Job found successfully.',
+    job,
+  });
+
+  // try {
+  //   // get unique job (either by slug or using id)
+  //   const jobSlug = req.params.slug;
+  //   const job = await Job.findOne({
+  //     slug: jobSlug,
+  //   });
+  //   if (!job) {
+  //     return res.status(400).json({
+  //       message: 'Job not found',
+  //       success: false,
+  //     });
+  //   }
+  //   // if job found, send the job in the response
+  //   res.status(200).json({
+  //     job,
+  //     success: true,
+  //   });
+  // } catch (error) {
+  //   console.log('Error getting job', error);
+  //   res.status(500).json({
+  //     message: 'Internal Server Error',
+  //     success: false,
+  //   });
+  // }
+});
 
 // Get all Jobs(with search by keyword)
 export const getAllJobs = async (req, res) => {

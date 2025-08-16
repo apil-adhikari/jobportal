@@ -6,6 +6,7 @@ const router = express.Router();
 // Public routes
 
 router.get('/', getAllJobs);
+
 router.get('/:slug', getJob);
 
 export default router;
