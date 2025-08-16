@@ -2,8 +2,20 @@ import Job from '../models/job.model.js';
 
 export const JobRepository = {
   create: async (jobData) => await Job.create(jobData),
-  get: async (slug) => await Job.find({ slug }),
-  getOne: async (slug) => await Job.findOne({ slug }),
+
+  // Find jobs along with query
+  find: async (query) =>
+    await Job.find(query)
+      .populate({
+        path: 'company',
+        select: 'name description',
+      })
+      .sort({
+        createdAt: -1,
+      }),
+
+  findJobBySlug: async (slug) =>
+    await Job.findOne({ slug }).populate('postedBy'),
 
   // UPDATE
   update: async (slug, jobData) => {

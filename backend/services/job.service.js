@@ -1,13 +1,9 @@
-// JOB SERVICE
-
-import slugify from 'slugify';
 import { JobRepository } from '../repositories/job.repository.js';
 import ApiError from '../utils/ApiError.js';
 import {
   findUniqueSlug,
   generateBaseSlug,
 } from '../utils/uniqueSlugGeneration.js';
-import Job from '../models/job.model.js';
 
 export const jobService = {
   // userId & jobData are required
@@ -56,7 +52,7 @@ export const jobService = {
   updateJob: async (slug, userId, jobData) => {
     console.log(slug);
     // Find the job
-    const existingJob = await JobRepository.getOne(slug);
+    const existingJob = await JobRepository.findJobBySlug(slug);
     console.log('JOB FOUND:', existingJob);
 
     // if job doesnot exists
@@ -118,7 +114,7 @@ export const jobService = {
   deleteJob: async (slug, userId) => {
     console.log(typeof slug);
     // find if the job exists: getOneJob
-    const existingJob = await JobRepository.getOne(slug);
+    const existingJob = await JobRepository.findJobBySlug(slug);
     console.log(existingJob);
     // check if the job is posted by the logged in user: can be checked if the job is found
     if (!existingJob) {
@@ -145,6 +141,42 @@ export const jobService = {
         'You have not posted any Jobs yet. Please post some jobs to view them here.',
         404
       );
+    }
+
+    return jobs;
+  },
+
+  // GET JOB BY slug(can also be done using ID)
+  getJobBySlug: async (jobSlug) => {
+    console.log('finding job');
+    const job = await JobRepository.findJobBySlug(jobSlug);
+    console.log(job);
+
+    if (!job) {
+      throw new ApiError('No job found with that slug.', 404);
+    }
+
+    return job;
+  },
+
+  getAllJobs: async (keyword) => {
+    console.log('IN JOB SERVICE, GETTING ALL JOBS');
+
+    // IMPLEMENT SEARCH FUNCTIONALITY:
+    // Query: basic query for keyword search (generate query only if keyword exists)
+    const query = keyword
+      ? {
+          $or: [
+            { title: { $regex: keyword, $options: 'i' } },
+            { description: { $regex: keyword, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const jobs = await JobRepository.find(query);
+
+    if (keyword && jobs.length === 0) {
+      throw new ApiError(`Job not found with ${keyword} keyword.`, 404);
     }
 
     return jobs;
