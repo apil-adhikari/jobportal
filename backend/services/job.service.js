@@ -162,4 +162,27 @@ export const jobService = {
 
     return job;
   },
+
+  getAllJobs: async (keyword) => {
+    console.log('IN JOB SERVICE, GETTING ALL JOBS');
+
+    // IMPLEMENT SEARCH FUNCTIONALITY:
+    // Query: basic query for keyword search (generate query only if keyword exists)
+    const query = keyword
+      ? {
+          $or: [
+            { title: { $regex: keyword, $options: 'i' } },
+            { description: { $regex: keyword, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const jobs = await JobRepository.find(query);
+
+    if (keyword && jobs.length === 0) {
+      throw new ApiError(`Job not found with ${keyword} keyword.`, 404);
+    }
+
+    return jobs;
+  },
 };

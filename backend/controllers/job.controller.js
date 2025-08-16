@@ -229,36 +229,43 @@ export const getJob = catchAsyncError(async (req, res, next) => {
 });
 
 // Get all Jobs(with search by keyword)
-export const getAllJobs = async (req, res) => {
-  try {
-    // Filtering:
-    const keyword = req.query.keyword || '';
+export const getAllJobs = catchAsyncError(async (req, res, next) => {
+  // Filtering:
+  const keyword = req.query.keyword || '';
 
-    // Query: basic query for keyword search
-    const query = {
-      $or: [
-        { title: { $regex: keyword, $options: 'i' } },
-        { description: { $regex: keyword, $options: 'i' } },
-      ],
-    };
+  const jobs = await jobService.getAllJobs(keyword);
 
-    const jobs = await Job.find(query);
-    if (!jobs) {
-      return res.status(404).json({
-        message: 'Job not found',
-        success: false,
-      });
-    }
+  res.status(200).json({
+    result: `${jobs.length} jobs found`,
+    jobs,
+  });
 
-    res.status(200).json({
-      jobs,
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error getting all jobs', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
+  // try {
+  // // Filtering:
+  // const keyword = req.query.keyword || '';
+  // Query: basic query for keyword search
+  // const query = {
+  //   $or: [
+  //     { title: { $regex: keyword, $options: 'i' } },
+  //     { description: { $regex: keyword, $options: 'i' } },
+  //   ],
+  // };
+  //   const jobs = await Job.find(query);
+  //   if (!jobs) {
+  //     return res.status(404).json({
+  //       message: 'Job not found',
+  //       success: false,
+  //     });
+  //   }
+  //   res.status(200).json({
+  //     jobs,
+  //     success: true,
+  //   });
+  // } catch (error) {
+  //   console.log('Error getting all jobs', error);
+  //   res.status(500).json({
+  //     message: 'Internal Server Error',
+  //     success: false,
+  //   });
+  // }
+});
