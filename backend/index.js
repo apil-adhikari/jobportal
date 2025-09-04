@@ -45,7 +45,7 @@ app.use('/api/v1/jobs', publicJobsRouter);
 app.use('/api/v1/jobs/employer', employerJobsRouter);
 
 app.use(globalErrorHanlder);
-app.listen(PORT, () => {
+app.listen(PORT, '127.0.0.1', () => {
   console.log(`Server started successfully on port ${PORT}`);
 });
 

@@ -160,8 +160,6 @@ export const jobService = {
   },
 
   getAllJobs: async (keyword) => {
-    console.log('IN JOB SERVICE, GETTING ALL JOBS');
-
     // IMPLEMENT SEARCH FUNCTIONALITY:
     // Query: basic query for keyword search (generate query only if keyword exists)
     const query = keyword

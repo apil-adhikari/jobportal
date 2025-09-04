@@ -8,14 +8,17 @@ export const JobRepository = {
     await Job.find(query)
       .populate({
         path: 'company',
-        select: 'name description',
+        select: 'name description -_id',
+      }).populate({
+        path: 'postedBy',
+        select: 'name email phoneNumber createdAt -_id'
       })
       .sort({
         createdAt: -1,
-      }),
+      }).select('-_id'),
 
   findJobBySlug: async (slug) =>
-    await Job.findOne({ slug }).populate('postedBy'),
+    await Job.findOne({ slug }).populate('postedBy','-password -updatedAt -__v -_id'),
 
   // UPDATE
   update: async (slug, jobData) => {
