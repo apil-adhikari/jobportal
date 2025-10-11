@@ -6,6 +6,7 @@ import { catchAsyncError } from '../utils/catchAsyncError.js';
 
 export const register = catchAsyncError(async (req, res, next) => {
   const user = await authService.registerUser(req.body);
+  console.log(user);
 
   res.status(201).json({
     message: 'User registered successfully',
@@ -16,6 +17,7 @@ export const register = catchAsyncError(async (req, res, next) => {
 
 export const login = catchAsyncError(async (req, res, next) => {
   const { user, token } = await authService.loginUser(req.body);
+  console.log(user);
 
   res
     .cookie('token', token, {

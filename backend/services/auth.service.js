@@ -31,6 +31,17 @@ export const authService = {
       phoneNumber,
     });
 
+    // Setting password undefined so that the even hashed password wont be sent in response
+    newUser.password = undefined;
+
+    // We can use the concept of safe user by sending only the required data or make the password field undefined
+    // const safeUser = {
+    //   _id: newUser._id,
+    //   name: newUser.name,
+    //   email: newUser.email,
+    //   role: newUser.role,
+    // };
+
     return newUser;
   },
 
@@ -58,7 +69,8 @@ export const authService = {
     const isPasswordMatch = await decryptPassword(password, user.password);
     if (!isPasswordMatch) {
       throw new ApiError(
-        'Invalid credentials(either email or password is wrong! pwd)'
+        'Invalid credentials(either email or password is wrong! pwd)',
+        401
       );
     }
 

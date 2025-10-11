@@ -125,6 +125,11 @@ export const getMyProfile = async (req, res) => {
 // 4. Delete account
 export const deleteMyAccount = async (req, res) => {
   try {
+    // FIXME We are not using the concept of TRANSACTION, as well as ACID property,
+    // Here, when deleting, we are first deleting the profile and then deleting the profile, this should not be done like this
+    // ISSUE: If profile is deleted, and user is not deleted, this can lead to inconsistency
+    // So, we need to either delete the profile & user at once or we should not delete any of those one
+
     await Profile.deleteOne({ user: req.user._id });
     await User.findByIdAndDelete(req.user._id);
 
