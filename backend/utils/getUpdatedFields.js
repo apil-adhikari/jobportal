@@ -1,4 +1,4 @@
-export function getUpdatedFields(existing, incoming, allowedFields) {
+export const getUpdatedFields = (existing, incoming, allowedFields) => {
   const updates = {};
   for (const field of allowedFields) {
     if (
@@ -10,4 +10,4 @@ export function getUpdatedFields(existing, incoming, allowedFields) {
     }
   }
   return updates;
-}
+};

@@ -1,147 +1,38 @@
-import Profile from '../models/profile.model.js';
-import User from '../models/user.model.js';
+import { userService } from '../services/user.service.js';
+import { catchAsyncError } from '../utils/catchAsyncError.js';
 
-export const update = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const {
-      name,
-      email,
-      phoneNumber,
-      bio,
-      location,
-      skills,
-      education,
-      experience,
-      resumeUrl,
-      resumeOriginalName,
-    } = req.body;
+export const update = catchAsyncError(async (req, res, next) => {
+  const userId = req.user._id;
+  const userData = req.body;
 
-    // File
-    const file = req.file;
-    // Cloudinary Setup Here
+  const result = await userService.updateUserProfile(
+    userId,
+    userData,
+    req.file
+  );
 
-    if (req.body.role) {
-      return res.status(401).json({
-        message: 'You cannot update your role',
-        success: false,
-      });
-    }
+  res.status(200).json({
+    success: true,
+    message: 'Profile updated successfully',
+    ...result,
+  });
+});
 
-    // 1. Update user's basic info
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { name, email, phoneNumber },
-      {
-        new: true,
-        runValidators: true,
-      }
-    ).select('-password');
+export const getCurrentUser = catchAsyncError(async (req, res) => {
+  const user = await userService.getCurrentUser(req.user._id);
 
-    // 2. Update or create profile info
-    let profile = await Profile.findOne({ user: userId });
+  res.status(200).json({ success: true, user });
+});
 
-    if (!profile) {
-      profile = new Profile({
-        user: userId,
-      });
-    }
+export const getMyProfile = catchAsyncError(async (req, res) => {
+  const profile = await userService.getProfile(req.user._id);
 
-    profile.bio = bio || profile.bio;
-    profile.location = location || profile.location;
-    profile.skills = skills || profile.skills;
-    profile.education = education || profile.education;
-    profile.experience = experience || profile.experience;
-    profile.resumeUrl = resumeUrl || profile.resumeUrl;
-    profile.resumeOriginalName =
-      resumeOriginalName || profile.resumeOriginalName;
+  res.status(200).json({ success: true, profile });
+});
 
-    await profile.save();
-
-    res.status(200).json({
-      message: 'Profile updated successfully',
-      user: updatedUser,
-      profile,
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error updating the profile', error);
-    res.status(500).json({ message: 'Server error while updating profile' });
-  }
-};
-
-// Get Current User:
-export const getCurrentUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('-password');
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-        success: false,
-      });
-    }
-
-    res.status(200).json({
-      user,
-      success: true,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
-
-// 3. Get my profile
-export const getMyProfile = async (req, res) => {
-  try {
-    const profile = await Profile.findOne({ user: req.user._id }).populate(
-      'user',
-      '-password'
-    );
-
-    if (!profile) {
-      return res.status(404).json({
-        message: 'Profile not found',
-        success: false,
-      });
-    }
-
-    res.status(200).json({
-      profile,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
-
-// 4. Delete account
-export const deleteMyAccount = async (req, res) => {
-  try {
-    // FIXME We are not using the concept of TRANSACTION, as well as ACID property,
-    // Here, when deleting, we are first deleting the profile and then deleting the profile, this should not be done like this
-    // ISSUE: If profile is deleted, and user is not deleted, this can lead to inconsistency
-    // So, we need to either delete the profile & user at once or we should not delete any of those one
-
-    await Profile.deleteOne({ user: req.user._id });
-    await User.findByIdAndDelete(req.user._id);
-
-    res.status(200).json({
-      message: 'Account deleted successfully',
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error deleting user', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
+export const deleteMyAccount = catchAsyncError(async (req, res) => {
+  await userService.deleteAccount(req.user._id);
+  res
+    .status(200)
+    .json({ success: true, message: 'Account deleted successfully' });
+});
