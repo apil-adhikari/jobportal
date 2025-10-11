@@ -17,11 +17,11 @@ export const jobService = {
       salaryMax,
       experience,
       company,
-      position,
+      vacancies,
     } = jobData;
 
     // Validate the required fields
-    if (!title || !type || !company || !position) {
+    if (!title || !type || !company || !vacancies) {
       throw new ApiError('All required fields must be filled.', 400);
     }
 
@@ -42,7 +42,7 @@ export const jobService = {
       salaryMax,
       experience,
       company,
-      position,
+      vacancies,
       slug: uniqueSlug,
       postedBy: userId,
     });
@@ -79,7 +79,7 @@ export const jobService = {
       salaryMax,
       experience,
       postedBy,
-      position,
+      vacancies,
     } = jobData;
 
     // If the job title is changed, update the slug(NOTE: This must be update throughout the application where the slug is linked)
@@ -105,7 +105,9 @@ export const jobService = {
       salaryMax,
       experience,
       postedBy: userId,
-      position,
+      vacancies,
+      applicationDeadline,
+      status,
       slug: uniqueSlug ? uniqueSlug : slug,
     });
   },

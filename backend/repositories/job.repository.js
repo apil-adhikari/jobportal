@@ -8,17 +8,28 @@ export const JobRepository = {
     await Job.find(query)
       .populate({
         path: 'company',
-        select: 'name description -_id',
-      }).populate({
+        select: 'name website description industry location -_id',
+      })
+      .populate({
         path: 'postedBy',
-        select: 'name email phoneNumber createdAt -_id'
+        select: 'name email phoneNumber -_id',
       })
       .sort({
         createdAt: -1,
-      }).select('-_id'),
+      })
+      .select('-_id')
+      .sort({ createdAt: -1 }),
 
   findJobBySlug: async (slug) =>
-    await Job.findOne({ slug }).populate('postedBy','-password -updatedAt -__v -_id'),
+    await Job.findOne({ slug })
+      .populate({
+        path: 'postedBy',
+        select: 'name email role -_id',
+      })
+      .populate({
+        path: 'company',
+        select: 'name description website industry location -_id',
+      }),
 
   // UPDATE
   update: async (slug, jobData) => {
