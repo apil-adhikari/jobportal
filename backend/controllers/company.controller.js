@@ -1,5 +1,7 @@
 import slugify from 'slugify';
 import Company from '../models/company.model.js';
+import { catchAsyncError } from '../utils/catchAsyncError.js';
+import { companyService } from '../services/company.service.js';
 
 // role = "EMPLOYER" can create a company
 
@@ -7,251 +9,114 @@ import Company from '../models/company.model.js';
  * - user should be logged in to create a company
  * - user with role "EMPLOYER" can create a company
  */
-export const createCompany = async (req, res) => {
-  try {
-    const { name, description, website, logoUrl, industry, location } =
-      req.body;
-
-    if (!name) {
-      return res.status(400).json({
-        message: 'Company name is required',
-        success: false,
-      });
-    }
-
-    // Create the slug
-    const slug = slugify(name, { lower: true, strict: true });
-
-    let existingCompany = await Company.findOne({
-      slug,
-    });
-
-    if (existingCompany) {
-      return res.status(400).json({
-        message: 'Cannot create another company with same name',
-        success: false,
-      });
-    }
-
-    const company = new Company({
-      user: req.user._id,
-      name,
-      description,
-      website,
-      logoUrl,
-      industry,
-      location,
-      slug,
-    });
-
-    await company.save();
-
-    res.status(201).json({
-      message: 'Company created successfully',
-      company,
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error creating company', error);
-    res.status(500).json({
-      // message: 'Internal Server Error',
-      message: error,
-      success: false,
-    });
-  }
-};
 
 /** Get My Company (for logged in company owner)
  * - Gets the companies created by the logged in user
  */
 
-export const getMyCompany = async (req, res) => {
-  try {
-    console.log('GETTING MY COMPANY...');
-    const userId = req.user._id;
-    // Get company created by the logged in user
-    const company = await Company.find({ user: userId });
-    if (!company) {
-      return res.status(404).json({
-        message: 'You do not have any company registered',
-        success: false,
-      });
-    }
+export const createCompany = catchAsyncError(async (req, res, next) => {
+  const userId = req.user._id;
 
-    res.status(200).json({
-      result: `${company.length}`,
-      company,
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error getting your company', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
+  const company = await companyService.createCompany(userId, req.body);
 
-// Get company by slug (public route)
-export const getCompany = async (req, res) => {
-  try {
-    const companyName = req.params.slug;
-    const company = await Company.findOne({ slug: companyName }).populate(
-      'user',
-      '-password'
-    );
+  res.status(201).json({
+    message: 'Company created successfully.',
+    company,
+  });
+});
 
-    if (!company) {
-      return res.status(404).json({
-        message: 'Company not found',
-        success: false,
-      });
-    }
+export const getMyCompanies = catchAsyncError(async (req, res, next) => {
+  const userId = req.user._id; // Employeer(loggeed in user)
+  const myCompanies = await companyService.getMyCompanies(userId);
 
-    res.status(200).json({
-      company,
-    });
-  } catch (error) {
-    console.log('Error getting company', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
+  res.status(200).json({
+    message: `${
+      myCompanies.length > 0
+        ? `${myCompanies.length} companies found`
+        : `No company found.`
+    }`,
+    status: 'success',
+    companies: myCompanies,
+  });
+});
 
 /** UPDATE COMPANY (only by owner)
  * - user should be logged in
  * - the user should be the owner of the company
  */
 
-export const updateCompany = async (req, res) => {
-  try {
-    // User should be logged in
-    // User should be owner of the company tring to update
-    const userId = req.user._id;
-    let companyName = req.params.slug;
+export const updateCompany = catchAsyncError(async (req, res, next) => {
+  const userId = req.user._id; // Logged-in user (EMPLOYER)
+  const companySlug = req.params.slug; // Company identifier
+  const companyData = req.body; // Incoming data (partial-update)
 
-    // 1) Find the company to update
-    const company = await Company.findOne({ slug: companyName }).populate(
-      'user',
-      '-password'
-    );
+  const updatedCompany = await companyService.updateCompany(
+    userId,
+    companySlug,
+    companyData
+    // Pass the logo url later (req.file)
+  );
 
-    if (!company) {
-      return res.status(404).json({
-        message: 'Company not found',
-        success: false,
-      });
-    }
+  res.status(200).json({
+    success: true,
+    message: 'Company updated successfully',
+    company: updatedCompany,
+  });
+});
 
-    // 2) If the company exists, check if the LOGGEDIN User is the owner of the company
-    if (!company.user.equals(userId)) {
-      // .equal() method can compare the string and the integer value
-      return res.status(403).json({
-        message: 'You are not the owner of this company',
-        success: false,
-      });
-    }
+export const deleteCompany = catchAsyncError(async (req, res, next) => {
+  const userId = req.user._id;
+  const companySlug = req.params.slug;
 
-    // If logged in user is the owner of the company, the get the data from req.body
+  const deletedCompany = await companyService.deleteCompany(
+    userId,
+    companySlug
+  );
 
-    const { name, description, website, logoUrl, industry, location } =
-      req.body;
+  res.status(204).json({
+    status: 'success',
+    message: 'Company deleted successfully.',
+  });
+});
 
-    // 4) Update Slug: If name is updated(name is in req.body), recreate the slug
-    if (name) {
-      company.name = name;
+export const getCompany = catchAsyncError(async (req, res, next) => {
+  const companySlug = req.params.slug;
 
-      // TODO: One the name is changed, it is needed to be reflected in the job section too.
+  const company = await companyService.getCompany(companySlug);
 
-      company.slug = slugify(name, {
-        lower: true,
-        strict: true,
-      });
-    }
+  res.status(200).json({
+    status: 'success',
+    company,
+  });
+});
 
-    // Update other details
+export const getAllCompanies = catchAsyncError(async (req, res, next) => {
+  const companies = await companyService.getCompanies();
 
-    company.description = description || company.description;
-    company.website = website || company.website;
-    company.logoUrl = logoUrl || company.logoUrl;
-    company.industry = industry || company.industry;
-    company.location = location || company.location;
+  res.status(200).json({
+    status: 'success',
+    result: `${companies.length} companies found`,
+    companies,
+  });
+});
 
-    await company.save();
-
-    res.status(200).json({
-      message: 'Comapany updated successfully',
-      company,
-      success: true,
-    });
-  } catch (error) {
-    console.log('Error updating company info', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
-
-// Delete company
-export const deleteCompany = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    let companyName = req.params.slug;
-
-    // 1) Find the company
-    const company = await Company.findOne({
-      slug: companyName,
-    });
-
-    if (!company) {
-      return res
-        .status(404)
-        .json({ message: 'Company not found', success: false });
-    }
-
-    // 2) Check for the ownership
-    if (!company.user.equals(userId)) {
-      return res.status(403).json({
-        message: 'You are not the owner of this company',
-        success: false,
-      });
-    }
-
-    // No data is sent in DELETE operation
-    await Company.findOneAndDelete({ slug: companyName });
-
-    res
-      .status(204)
-      .json({ message: 'Company deleted successfully', success: true });
-  } catch (error) {
-    console.log('Error deleting company', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
-
-// Get all companies
-export const getAllCompanies = async (req, res) => {
-  try {
-    const comapanies = await Company.find(
-      {},
-      { __v: 0, createdAt: 0, updatedAt: 0 } // PROJECTION on company detail
-    ).populate('user', '-password -__v -updatedAt -createdAt -_id'); // populating the fields inside the field
-    res.status(200).json({
-      result: `${comapanies.length} companies found`,
-      success: true,
-      comapanies,
-    });
-  } catch (error) {
-    console.log('Error getting companies', error);
-    res.status(500).json({
-      message: 'Internal Server Error',
-      success: false,
-    });
-  }
-};
+// // Get all companies
+// export const getAllCompanies = async (req, res) => {
+//   try {
+//     const comapanies = await Company.find(
+//       {},
+//       { __v: 0, createdAt: 0, updatedAt: 0 } // PROJECTION on company detail
+//     ).populate('user', '-password -__v -updatedAt -createdAt -_id'); // populating the fields inside the field
+//     res.status(200).json({
+//       result: `${comapanies.length} companies found`,
+//       success: true,
+//       comapanies,
+//     });
+//   } catch (error) {
+//     console.log('Error getting companies', error);
+//     res.status(500).json({
+//       message: 'Internal Server Error',
+//       success: false,
+//     });
+//   }
+// };

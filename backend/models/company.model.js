@@ -3,10 +3,11 @@ import slugify from 'slugify';
 
 const companySchema = new mongoose.Schema(
   {
-    user: {
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       // unique: true,
+      required: true,
     },
     name: {
       type: String,
@@ -29,16 +30,7 @@ const companySchema = new mongoose.Schema(
   }
 );
 
-// Auto generate slug before save or update
-companySchema.pre('save', function (next) {
-  if (this.isModified('name')) {
-    this.slug = slugify(this.name, {
-      lower: true,
-      strict: true,
-    });
-  }
-  next();
-});
+companySchema.index({ name: 'text', industry: 'text', location: 'text' });
 
 const Company = mongoose.model('Company', companySchema);
 export default Company;

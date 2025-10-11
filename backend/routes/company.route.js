@@ -5,7 +5,7 @@ import {
   deleteCompany,
   getAllCompanies,
   getCompany,
-  getMyCompany,
+  getMyCompanies,
   updateCompany,
 } from '../controllers/company.controller.js';
 
@@ -21,9 +21,14 @@ const router = express.Router();
  */
 
 router.post('/', isAuthenticated, restrictTo('EMPLOYER'), createCompany); // Create Company
-router.get('/my', isAuthenticated, restrictTo('EMPLOYER'), getMyCompany); // Get my Company
+router.get(
+  '/my-companies',
+  isAuthenticated,
+  restrictTo('EMPLOYER'),
+  getMyCompanies
+); // Get my Companies
 
-router.put('/:slug', isAuthenticated, restrictTo('EMPLOYER'), updateCompany); // Update a Company
+router.patch('/:slug', isAuthenticated, restrictTo('EMPLOYER'), updateCompany); // Update a Company
 router.delete('/:slug', isAuthenticated, restrictTo('EMPLOYER'), deleteCompany);
 
 router.get('/:slug', getCompany); // Get a Company
