@@ -1,4 +1,4 @@
-import { catchAsyncError } from '../utils/catchAsyncError.js';
+import catchAsyncError from '../utils/catchAsyncError.js';
 import { jobService } from '../services/job.service.js';
 
 // Create new job

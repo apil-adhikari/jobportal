@@ -87,7 +87,9 @@ const getUser = async (req, res, next) => {
         Now, any error (including thrown ApiErrors or database connection errors) that occurs inside the getUser function will be automatically passed to next(), which then triggers your global error-handling middleware. This keeps your route handlers clean and focused on the business logic.
         */
 
-export const catchAsyncError = (fn) => (req, res, next) => {
+const catchAsyncError = (fn) => (req, res, next) => {
   //   fn(req, res, next).catch(next);
   fn(req, res, next).catch((err) => next(err));
 };
+
+export default catchAsyncError;

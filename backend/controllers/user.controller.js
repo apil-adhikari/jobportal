@@ -1,5 +1,5 @@
 import { userService } from '../services/user.service.js';
-import { catchAsyncError } from '../utils/catchAsyncError.js';
+import catchAsyncError from '../utils/catchAsyncError.js';
 
 export const update = catchAsyncError(async (req, res, next) => {
   const userId = req.user._id;

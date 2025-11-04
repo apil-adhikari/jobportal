@@ -18,6 +18,7 @@ export const jobService = {
       experience,
       company,
       vacancies,
+      applicationDeadline,
     } = jobData;
 
     // Validate the required fields
@@ -45,6 +46,7 @@ export const jobService = {
       vacancies,
       slug: uniqueSlug,
       postedBy: userId,
+      applicationDeadline,
     });
   },
 
@@ -80,6 +82,7 @@ export const jobService = {
       experience,
       postedBy,
       vacancies,
+      applicationDeadline,
     } = jobData;
 
     // If the job title is changed, update the slug(NOTE: This must be update throughout the application where the slug is linked)

@@ -63,6 +63,10 @@ const profileSchema = new mongoose.Schema(
 
     resumeUrl: String, // S3/Cloudinary
     resumeOriginalName: String,
+
+    // Profile picture
+    profilePictureUrl: String,
+    profilePictureOriginalName: String,
   },
   {
     timestamps: true,

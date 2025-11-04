@@ -18,7 +18,7 @@
  
  */
 
-export default class ApiError extends Error {
+class ApiError extends Error {
   // Inherit ApiError from Error class
 
   constructor(message, statusCode) {
@@ -30,3 +30,5 @@ export default class ApiError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
+export default ApiError;

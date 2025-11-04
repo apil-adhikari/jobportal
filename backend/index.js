@@ -10,6 +10,7 @@ import companyRouter from './routes/company.route.js';
 import publicJobsRouter from './routes/jobs/publicJobs.route.js';
 import employerJobsRouter from './routes/jobs/employerJobs.route.js';
 import { globalErrorHanlder } from './middlewares/error.middleware.js';
+import applicationRouter from './routes/application.route.js';
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/company', companyRouter);
 app.use('/api/v1/jobs', publicJobsRouter);
 app.use('/api/v1/jobs/employer', employerJobsRouter);
+app.use('/api/v1/applications', applicationRouter);
 
 app.use(globalErrorHanlder);
 app.listen(PORT, '127.0.0.1', () => {

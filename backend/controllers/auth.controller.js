@@ -2,7 +2,7 @@ import User from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authService } from '../services/auth.service.js';
-import { catchAsyncError } from '../utils/catchAsyncError.js';
+import catchAsyncError from '../utils/catchAsyncError.js';
 
 export const register = catchAsyncError(async (req, res, next) => {
   const user = await authService.registerUser(req.body);

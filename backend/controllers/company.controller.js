@@ -1,6 +1,6 @@
 import slugify from 'slugify';
 import Company from '../models/company.model.js';
-import { catchAsyncError } from '../utils/catchAsyncError.js';
+import catchAsyncError from '../utils/catchAsyncError.js';
 import { companyService } from '../services/company.service.js';
 
 // role = "EMPLOYER" can create a company
