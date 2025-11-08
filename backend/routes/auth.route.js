@@ -4,15 +4,19 @@ import {
   logout,
   register,
   verifyEmail,
+  resendVerification,
 } from '../controllers/auth.controller.js';
-import { resendVerification } from '../controllers/auth.controller.js';
+import {
+  loginLimiter,
+  resendLimiter,
+} from '../middlewares/rateLimiter.middleware.js';
 
 const router = express.Router();
 
 router.post('/register', register);
 router.post('/verify-email', verifyEmail);
-router.post('/resend-verify', resendVerification);
-router.post('/login', login);
+router.post('/resend-verify', resendLimiter, resendVerification);
+router.post('/login', loginLimiter, login);
 router.post('/logout', logout);
 
 export default router;

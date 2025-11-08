@@ -2,6 +2,8 @@ import express, { urlencoded } from 'express';
 import './config/dotenv.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import helmet from 'helmet';
+import { globalLimiter } from './middlewares/rateLimiter.middleware.js';
 import connectDB from './config/db.js';
 
 import authRouter from './routes/auth.route.js';
@@ -21,6 +23,12 @@ app.use(morgan('tiny'));
 app.use(express.json()); // Parse req.body data
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Security headers
+app.use(helmet());
+
+// Apply global rate limiter
+app.use(globalLimiter);
 
 // CORS Options
 const corsOptions = {
