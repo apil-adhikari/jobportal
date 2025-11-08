@@ -5,6 +5,7 @@ import JobRepository from '../repositories/job.repository.js';
 import validAplicationStatus from '../constants/validAplicationStatus.js';
 import cloudinary from '../config/cloudinary.js';
 import getUpdatedFields from '../utils/getUpdatedFields.js';
+import emailService from '../utils/emailService.js';
 
 const applicationService = {
   // Job seeker applies for a job
@@ -126,6 +127,26 @@ const applicationService = {
       applicationId,
       newStatus
     );
+
+    // Fetch application with populated user & job to notify applicant
+    const populatedApp = await ApplicationRepository.findApplicationById(
+      applicationId
+    );
+
+    try {
+      if (populatedApp && populatedApp.user && populatedApp.user.email) {
+        await emailService.sendApplicationStatusEmail(
+          populatedApp.user.email,
+          populatedApp.user.name || 'Applicant',
+          populatedApp.job && populatedApp.job.title
+            ? populatedApp.job.title
+            : 'your application',
+          newStatus
+        );
+      }
+    } catch (err) {
+      console.warn('Failed to send application status email:', err);
+    }
 
     return application;
   },

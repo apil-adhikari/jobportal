@@ -2,6 +2,8 @@ import { AuthRepository } from '../repositories/auth.repository.js';
 import ApiError from '../utils/ApiError.js';
 import { decryptPassword, encryptPassword } from '../utils/passwordHash.js';
 import { generateToken } from '../utils/token.utils.js';
+import emailService from '../utils/emailService.js';
+import crypto from 'crypto';
 
 export const authService = {
   // USER REGISTER SERVICE
@@ -30,6 +32,21 @@ export const authService = {
       role,
       phoneNumber,
     });
+
+    // Generate verification OTP, hash it and persist the hash on user record
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    newUser.verificationToken = hashedOtp;
+    newUser.verificationTokenExpires = expires;
+    await newUser.save();
+
+    // send the verification email with plaintext OTP (do not block registration failures silently)
+    try {
+      await emailService.sendVerificationEmail(newUser.email, otp);
+    } catch (err) {
+      console.warn('Failed to send verification email:', err.message || err);
+    }
 
     // Setting password undefined so that the even hashed password wont be sent in response
     newUser.password = undefined;
@@ -74,6 +91,14 @@ export const authService = {
       );
     }
 
+    // Require email verification before allowing login
+    if (!user.isVerified) {
+      throw new ApiError(
+        'Email not verified. Please verify your email before logging in.',
+        403
+      );
+    }
+
     // Setting password undefined so that the even hashed password wont be sent in response
     user.password = undefined;
 
@@ -93,11 +118,82 @@ export const authService = {
       name: user.name,
       email: user.email,
       role: user.role,
+      isVerified: !!user.isVerified,
     };
 
     return {
       user: safeUser,
       token,
     };
+  },
+
+  // Verify OTP code sent to email
+  verifyEmail: async (email, token) => {
+    if (!email || !token) {
+      throw new ApiError('Email and token are required', 400);
+    }
+
+    const user = await AuthRepository.findUserByEmail(email);
+    if (!user) throw new ApiError('Invalid email or token', 400);
+
+    if (user.isVerified) {
+      return { message: 'Email already verified' };
+    }
+
+    if (!user.verificationToken) {
+      throw new ApiError('Invalid or expired token', 400);
+    }
+
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(String(token))
+      .digest('hex');
+
+    if (
+      hashedToken !== user.verificationToken ||
+      (user.verificationTokenExpires &&
+        user.verificationTokenExpires < new Date())
+    ) {
+      throw new ApiError('Invalid or expired token', 400);
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    return { message: 'Email verified successfully' };
+  },
+
+  // Resend verification OTP to user's email
+  resendVerification: async (email) => {
+    if (!email) throw new ApiError('Email is required', 400);
+
+    const user = await AuthRepository.findUserByEmail(email);
+    if (!user) throw new ApiError('User not found', 404);
+
+    if (user.isVerified) {
+      return { message: 'Email already verified' };
+    }
+
+    // generate new OTP, hash it and persist
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 10 * 60 * 1000);
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+    user.verificationToken = hashedOtp;
+    user.verificationTokenExpires = expires;
+    await user.save();
+
+    try {
+      await emailService.sendVerificationEmail(user.email, otp);
+    } catch (err) {
+      console.warn(
+        'Failed to send verification email (resend):',
+        err.message || err
+      );
+    }
+
+    return { message: 'Verification code sent' };
   },
 };

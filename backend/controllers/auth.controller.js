@@ -15,6 +15,18 @@ export const register = catchAsyncError(async (req, res, next) => {
   });
 });
 
+export const verifyEmail = catchAsyncError(async (req, res, next) => {
+  const { email, token } = req.body;
+  const result = await authService.verifyEmail(email, token);
+  res.status(200).json({ success: true, ...result });
+});
+
+export const resendVerification = catchAsyncError(async (req, res, next) => {
+  const { email } = req.body;
+  const result = await authService.resendVerification(email);
+  res.status(200).json({ success: true, ...result });
+});
+
 export const login = catchAsyncError(async (req, res, next) => {
   const { user, token } = await authService.loginUser(req.body);
   console.log(user);

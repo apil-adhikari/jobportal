@@ -24,10 +24,15 @@ const ApplicationRepository = {
 
   // find application by applicationId
   findApplicationById: async (applicationId) =>
-    await Application.findById(applicationId).populate({
-      path: 'job',
-      select: 'postedBy',
-    }),
+    await Application.findById(applicationId)
+      .populate({
+        path: 'user',
+        select: 'name email',
+      })
+      .populate({
+        path: 'job',
+        select: 'title postedBy',
+      }),
 
   // Update the Application Status
   updateApplicationStatusById: async (applicationId, newStatus) => {
