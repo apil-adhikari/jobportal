@@ -37,3 +37,24 @@ export const getApplicationsForJob = catchAsyncError(async (req, res, next) => {
     results,
   });
 });
+
+// Update application status (by Employer)
+export const updateApplicationStatusByEmployer = catchAsyncError(
+  async (req, res, next) => {
+    const userId = req.user._id; //Logged in user
+    const applicationId = req.params.applicationId; // application id
+    const { status } = req.body; // Incoming status data (partial-update)
+
+    const result = await applicationService.updateApplicationStatusByEmployer(
+      userId,
+      applicationId,
+      status
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Status Updated',
+      result,
+    });
+  }
+);

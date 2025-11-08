@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import validAplicationStatus from '../constants/validAplicationStatus.js';
 
 const applicationSchema = new mongoose.Schema(
   {
@@ -24,7 +25,7 @@ const applicationSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ['PENDING', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'],
+      enum: validAplicationStatus,
       default: 'PENDING',
     },
 

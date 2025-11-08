@@ -4,6 +4,7 @@ import { uploadSingle } from '../middlewares/multer.middleware.js';
 import {
   createApplication,
   getApplicationsForJob,
+  updateApplicationStatusByEmployer,
 } from '../controllers/application.controller.js';
 
 const router = express.Router();
@@ -32,6 +33,14 @@ router.get(
   isAuthenticated,
   restrictTo('EMPLOYER'),
   getApplicationsForJob
+);
+
+// Update application status by EMPLOYER
+router.patch(
+  '/:applicationId/status',
+  isAuthenticated,
+  restrictTo('EMPLOYER'),
+  updateApplicationStatusByEmployer
 );
 
 export default router;

@@ -17,7 +17,7 @@ const app = express();
 
 // MIDDLEWARE
 // Request Logger Middleware
-app.use(morgan('common'));
+app.use(morgan('tiny'));
 app.use(express.json()); // Parse req.body data
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

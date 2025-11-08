@@ -2,6 +2,7 @@ import ApiError from '../utils/ApiError.js';
 import uploadToCloudinary from '../utils/uploadToCloudinary.js';
 import ApplicationRepository from '../repositories/application.repository.js';
 import JobRepository from '../repositories/job.repository.js';
+import validAplicationStatus from '../constants/validAplicationStatus.js';
 
 const applicationService = {
   // Job seeker applies for a job
@@ -77,6 +78,53 @@ const applicationService = {
     // Show the applications using jobId
     const jobId = job._id;
     return await ApplicationRepository.findApplicationsByJobId(jobId);
+  },
+
+  /**
+   * Update application Status by Employer using Application Id
+   */
+
+  updateApplicationStatusByEmployer: async (
+    userId,
+    applicationId,
+    newStatus
+  ) => {
+    // Find the application:
+    let application = await ApplicationRepository.findApplicationById(
+      applicationId
+    );
+
+    if (!application) {
+      throw new ApiError('Application not found', 404);
+    }
+
+    // Check the ownership
+    if (!application.job.postedBy.equals(userId)) {
+      throw new ApiError('Forbidden: not your job!', 403);
+    }
+
+    // Validate the status
+    if (!validAplicationStatus.includes(newStatus)) {
+      throw new ApiError('Invalid application status value', 400);
+    }
+
+    console.log(application);
+    console.log(userId);
+    console.log(applicationId);
+    console.log(newStatus);
+
+    // If the status is same as previous status then no need to call the DB again
+    if (application.status === newStatus) {
+      return application;
+    }
+
+    // We need to update only the status here
+    application = await ApplicationRepository.updateApplicationStatusById(
+      applicationId,
+      newStatus
+    );
+
+    return application;
   },
 
   // Get applications by users (total applications applied by user in all jobs)

@@ -2,7 +2,7 @@
 
 import { UserRepository } from '../repositories/user.repository.js';
 import ApiError from '../utils/ApiError.js'; // Assuming this utility exists
-import { getUpdatedFields } from '../utils/getUpdatedFields.js'; // Assuming this utility exists
+import getUpdatedFields from '../utils/getUpdatedFields.js'; // Assuming this utility exists
 
 export const userService = {
   /**

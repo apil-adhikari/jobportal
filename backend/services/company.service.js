@@ -1,6 +1,6 @@
 import { CompanyRepository } from '../repositories/company.repository.js';
 import ApiError from '../utils/ApiError.js';
-import { getUpdatedFields } from '../utils/getUpdatedFields.js';
+import getUpdatedFields from '../utils/getUpdatedFields.js';
 import { generateBaseSlug } from '../utils/uniqueSlugGeneration.js';
 
 export const companyService = {

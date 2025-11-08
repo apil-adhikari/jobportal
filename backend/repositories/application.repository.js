@@ -22,6 +22,29 @@ const ApplicationRepository = {
         select: 'title',
       }),
 
+  // find application by applicationId
+  findApplicationById: async (applicationId) =>
+    await Application.findById(applicationId).populate({
+      path: 'job',
+      select: 'postedBy',
+    }),
+
+  // Update the Application Status
+  updateApplicationStatusById: async (applicationId, newStatus) => {
+    const updatedStatus = await Application.findByIdAndUpdate(
+      applicationId,
+      {
+        status: newStatus,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return updatedStatus;
+  },
+
   findApplicationsByUserId: async (userId) =>
     await Application.find({ user: userId }).populate('job'),
 };
