@@ -24,7 +24,7 @@ const JobRepository = {
     await Job.findOne({ slug })
       .populate({
         path: 'postedBy',
-        select: 'name email role -_id',
+        select: 'name email role _id',
       })
       .populate({
         path: 'company',

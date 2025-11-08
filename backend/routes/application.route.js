@@ -1,7 +1,10 @@
 import express from 'express';
 import { isAuthenticated, restrictTo } from '../middlewares/auth.middleware.js';
 import { uploadSingle } from '../middlewares/multer.middleware.js';
-import { createApplication } from '../controllers/application.controller.js';
+import {
+  createApplication,
+  getApplicationsForJob,
+} from '../controllers/application.controller.js';
 
 const router = express.Router();
 
@@ -21,6 +24,14 @@ router.post(
   restrictTo('JOB_SEEKER'),
   uploadSingle('resume'),
   createApplication
+);
+
+// Get all the applications
+router.get(
+  '/:slug',
+  isAuthenticated,
+  restrictTo('EMPLOYER'),
+  getApplicationsForJob
 );
 
 export default router;

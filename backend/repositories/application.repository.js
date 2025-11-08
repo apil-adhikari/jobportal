@@ -12,7 +12,15 @@ const ApplicationRepository = {
 
   // TODO: Make use of aggregation pipeline with match, pagination, sorting, unwrap and facet features in v2
   findApplicationsByJobId: async (jobId) =>
-    await Application.find({ job: jobId }).populate('user'),
+    await Application.find({ job: jobId })
+      .populate({
+        path: 'user',
+        select: 'name email',
+      })
+      .populate({
+        path: 'job',
+        select: 'title',
+      }),
 
   findApplicationsByUserId: async (userId) =>
     await Application.find({ user: userId }).populate('job'),

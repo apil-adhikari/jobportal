@@ -64,8 +64,13 @@ const applicationService = {
       throw new ApiError('No job exists!', 404);
     }
 
+    console.log('Get all jobs ');
+    console.log(job.postedBy._id);
+    console.log(userId);
+
     // Verify the ownership:
-    if (job.postedBy !== userId) {
+    // if (job.postedBy.id.toString() !== userId.toString()) {
+    if (!job.postedBy._id.equals(userId)) {
       throw new ApiError('Forbidden: you do not own this job', 403);
     }
 
