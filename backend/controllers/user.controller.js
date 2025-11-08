@@ -4,12 +4,10 @@ import catchAsyncError from '../utils/catchAsyncError.js';
 export const update = catchAsyncError(async (req, res, next) => {
   const userId = req.user._id;
   const userData = req.body;
+  // support both single and multi-field upload
+  const files = req.files || (req.file ? { file: req.file } : undefined);
 
-  const result = await userService.updateUserProfile(
-    userId,
-    userData,
-    req.file
-  );
+  const result = await userService.updateUserProfile(userId, userData, files);
 
   res.status(200).json({
     success: true,
