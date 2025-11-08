@@ -45,6 +45,31 @@ const ApplicationRepository = {
     return updatedStatus;
   },
 
+  updateApplicationById: async (
+    applicationId,
+    applicationData
+    // updates,
+
+    // resumeOriginalName,
+    // resumeUrl,
+    // resumePublicId
+  ) => {
+    console.log('Application DAta in repo:', applicationData);
+    const updates = await Application.findOneAndUpdate(
+      {
+        _id: applicationId,
+      },
+      applicationData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    console.log(updates);
+    return updates;
+  },
+
   findApplicationsByUserId: async (userId) =>
     await Application.find({ user: userId }).populate('job'),
 };

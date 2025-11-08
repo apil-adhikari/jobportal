@@ -3,6 +3,8 @@ import uploadToCloudinary from '../utils/uploadToCloudinary.js';
 import ApplicationRepository from '../repositories/application.repository.js';
 import JobRepository from '../repositories/job.repository.js';
 import validAplicationStatus from '../constants/validAplicationStatus.js';
+import cloudinary from '../config/cloudinary.js';
+import getUpdatedFields from '../utils/getUpdatedFields.js';
 
 const applicationService = {
   // Job seeker applies for a job
@@ -34,7 +36,7 @@ const applicationService = {
       throw new ApiError('You have already applied for this job', 400);
     }
 
-    let resumeUrl, resumeOriginalName;
+    let resumeUrl, resumeOriginalName, resumePublicId;
     if (resumeFile) {
       const uniqueName = `${userId}-${Date.now()}`;
       const result = await uploadToCloudinary(
@@ -44,6 +46,7 @@ const applicationService = {
       );
       resumeUrl = result.secure_url;
       resumeOriginalName = resumeFile.originalname;
+      resumePublicId = result.public_id;
     }
 
     // Create a new Application
@@ -129,7 +132,93 @@ const applicationService = {
 
   // Get applications by users (total applications applied by user in all jobs)
   getApplicationsByUser: async (userId) => {
-    return ApplicationRepository.finaApplicationsByUserId(userId);
+    return await ApplicationRepository.findApplicationsByUserId(userId);
+  },
+
+  // Update Application By Applicant using Application ID
+  updateApplicationByApplicant: async (
+    userId,
+    applicationId,
+    newResumeFile,
+    applicationData
+  ) => {
+    // 1. Check if the application exists
+    // 2. Validate the ownership
+    // 3. Check if the status has changed to 'shortlisted' or 'accepted', if so don't allow to change the status
+    // 4. Handle resume replacement (delete old, upload new)
+    // 5. Use getUpdatedFields() utility to apply changes
+    // 6. Call the repository to persist updates
+
+    let application = await ApplicationRepository.findApplicationById(
+      // userId,
+      applicationId
+    );
+
+    if (!application) {
+      throw new ApiError('No application found!', 404);
+    }
+
+    if (!application.user.equals(userId)) {
+      throw new ApiError(
+        'Forbidden: You are not the owner of this application',
+        403
+      );
+    }
+
+    if (
+      application.status === 'ACCEPTED' ||
+      application.status === 'SHORTLISTED' ||
+      application.status === 'REJECTED'
+    ) {
+      throw new ApiError(
+        `You have been ${application.status.toLocaleLowerCase}. So you can't update your application.`,
+        403
+      );
+    }
+
+    // Handle resume replacement
+    // Upload the new one and delete the old one using the publicId
+    let resumeUrl, resumeOriginalName, resumePublicId;
+
+    if (newResumeFile) {
+      const uniqueName = `${userId}-${Date.now()}`;
+      const result = await uploadToCloudinary(
+        newResumeFile.buffer,
+        'resumes',
+        uniqueName
+      );
+
+      resumeUrl = result.secure_url;
+      resumeOriginalName = newResumeFile.originalname;
+      resumePublicId = result.public_id;
+    }
+
+    // When the user uploads a new resume, check if the application already has a resumePublicId stored, if exists then delete the resume
+
+    if (application.resumePublicId) {
+      await cloudinary.uploader.destroy(application.resumePublicId);
+    }
+
+    const allowedFields = [
+      'coverLetter',
+      // 'resumeUrl',
+      // 'resumeOriginalName',
+      // 'resumePublicId',
+    ];
+
+    const updates = getUpdatedFields(
+      application,
+      applicationData,
+      allowedFields
+    );
+    console.log('UPDATES:::', updates);
+
+    application = await ApplicationRepository.updateApplicationById(
+      applicationId,
+      { resumeOriginalName, resumeUrl, resumePublicId, ...updates }
+    );
+
+    return application;
   },
 
   // TODO: change application status

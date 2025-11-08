@@ -23,6 +23,11 @@ const applicationSchema = new mongoose.Schema(
 
     resumeOriginalName: { type: String }, // Original file name
 
+    // To delte from cloudinary or any other service we need its public id
+    resumePublicId: {
+      type: String,
+    },
+
     status: {
       type: String,
       enum: validAplicationStatus,

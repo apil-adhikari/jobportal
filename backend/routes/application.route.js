@@ -5,6 +5,7 @@ import {
   createApplication,
   getApplicationsForJob,
   updateApplicationStatusByEmployer,
+  updateMyApplication,
 } from '../controllers/application.controller.js';
 
 const router = express.Router();
@@ -42,5 +43,19 @@ router.patch(
   restrictTo('EMPLOYER'),
   updateApplicationStatusByEmployer
 );
+
+// Update the application within 2 working days or if the status of the application have not been changed
+// The user can reupload the resume
+// TODO: Let the applicant update the application
+router.patch(
+  '/:applicationId',
+  isAuthenticated,
+  restrictTo('JOB_SEEKER'),
+  uploadSingle('resume'),
+  updateMyApplication
+);
+// TODO: Let applicant delte the application
+
+// Delete the submitted application within 2 working days
 
 export default router;

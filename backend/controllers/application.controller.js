@@ -58,3 +58,23 @@ export const updateApplicationStatusByEmployer = catchAsyncError(
     });
   }
 );
+
+// Update my application
+export const updateMyApplication = catchAsyncError(async (req, res, next) => {
+  const userId = req.user._id;
+  const applicationId = req.params.applicationId;
+  const newResumeFile = req.file;
+
+  const result = await applicationService.updateApplicationByApplicant(
+    userId,
+    applicationId,
+    newResumeFile,
+    req.body
+  );
+
+  res.status(200).json({
+    success: true,
+    message: 'Application updated successfully',
+    result,
+  });
+});

@@ -20,5 +20,11 @@ const uploadToCloudinary = (buffer, folder, uniqueName) => {
   });
 };
 
+// const deleteFromCloudinary = () => {
+//   return new Promise((resolve, reject) => {
+//     const delete = cloudinary.uploader.destroy
+//   })
+// }
+
 // 2. Export it as the default export
 export default uploadToCloudinary;
