@@ -1,6 +1,6 @@
 import Job from '../models/job.model.js';
 
-export const JobRepository = {
+const JobRepository = {
   create: async (jobData) => await Job.create(jobData),
 
   // Find jobs along with query
@@ -60,3 +60,5 @@ export const JobRepository = {
     });
   },
 };
+
+export default JobRepository;

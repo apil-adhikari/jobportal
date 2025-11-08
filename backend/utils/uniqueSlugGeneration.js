@@ -1,5 +1,5 @@
 import slugify from 'slugify';
-import { JobRepository } from '../repositories/job.repository.js';
+import JobRepository from '../repositories/job.repository.js';
 
 export const generateBaseSlug = (text) => {
   return slugify(text, {

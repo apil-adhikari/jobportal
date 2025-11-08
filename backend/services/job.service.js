@@ -1,4 +1,4 @@
-import { JobRepository } from '../repositories/job.repository.js';
+import JobRepository from '../repositories/job.repository.js';
 import ApiError from '../utils/ApiError.js';
 import {
   findUniqueSlug,

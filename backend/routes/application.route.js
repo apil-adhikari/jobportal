@@ -16,7 +16,7 @@ const router = express.Router();
 // 2) Change the status of the application
 
 router.post(
-  '/apply',
+  '/apply/:slug',
   isAuthenticated,
   restrictTo('JOB_SEEKER'),
   uploadSingle('resume'),

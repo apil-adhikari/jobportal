@@ -11,10 +11,13 @@ import publicJobsRouter from './routes/jobs/publicJobs.route.js';
 import employerJobsRouter from './routes/jobs/employerJobs.route.js';
 import { globalErrorHanlder } from './middlewares/error.middleware.js';
 import applicationRouter from './routes/application.route.js';
+import morgan from 'morgan';
 
 const app = express();
 
 // MIDDLEWARE
+// Request Logger Middleware
+app.use(morgan('common'));
 app.use(express.json()); // Parse req.body data
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
